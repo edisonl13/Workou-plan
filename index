@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Eddie · 3分化 · 深色计时版</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      background:#121215;
+      color:#e8e8ee;
+      padding:0.5rem 0.75rem 1.5rem;
+    }
+    .wrap{max-width:700px;margin:0 auto;padding:0.5rem 0}
+    h1{
+      font-size:20px;font-weight:500;margin-bottom:0.75rem;color:#f0f0f5;
+      display:flex;align-items:center;gap:8px;
+    }
+    .progress-badge{
+      font-size:13px;background:#2a2a35;padding:4px 12px;border-radius:40px;
+      margin-left:auto;color:#b0b0c0;
+    }
+    .day-nav{display:flex;gap:8px;margin-bottom:1.2rem}
+    .day-btn{
+      flex:1;padding:10px 8px;border-radius:8px;border:0.5px solid #3a3a4a;
+      background:transparent;cursor:pointer;font-size:13px;font-weight:500;
+      color:#a0a0b0;transition:all 0.15s;
+    }
+    .day-btn.active{
+      background:#2a3a55;color:#8db5f0;border-color:#5a7ab0;
+    }
+    .heart-bar{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap}
+    .hz{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500}
+    .hz-warm{background:#3d2e1c;color:#e0a56f}
+    .hz-work{background:#3d2025;color:#e0797d}
+    .hz-cool{background:#1e3a2a;color:#7dba8a}
+    
+    .phase{margin-bottom:1.5rem}
+    .phase-header{
+      display:flex;align-items:center;gap:10px;margin-bottom:12px;
+      padding-bottom:8px;border-bottom:0.5px solid #2a2a38;
+    }
+    .phase-dot{width:8px;height:8px;border-radius:50%}
+    .dot-warm{background:#e09f5e}
+    .dot-main{background:#d66b6b}
+    .dot-cool{background:#5ea87c}
+    .phase-title{font-size:15px;font-weight:500;color:#ddd}
+    .phase-time{font-size:12px;color:#888;margin-left:auto}
+    
+    .ex-card{
+      background:#1e1e26;border:0.5px solid #2c2c3a;
+      border-radius:12px;padding:14px 14px 12px;margin-bottom:12px;
+    }
+    .ex-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+    .ex-num{font-size:11px;color:#7a7a90;min-width:20px;padding-top:2px}
+    .ex-name{font-size:15px;font-weight:500;color:#ececf0;flex:1}
+    .ex-badge{font-size:11px;padding:2px 8px;border-radius:20px}
+    .b-db{background:#253a55;color:#8db5f0}
+    .b-bw{background:#1e3a2a;color:#7dba8a}
+    .b-str{background:#3d2e1c;color:#e0a56f}
+    .ex-sets{font-size:12px;color:#b0b0c0;margin-left:30px;margin-bottom:4px}
+    .ex-tip{font-size:12px;color:#8f8fa5;margin-left:30px;font-style:italic;margin-bottom:8px}
+    .ex-rest{font-size:11px;color:#7a7a90;margin-left:30px;margin-bottom:6px}
+    
+    /* 组追踪 */
+    .set-tracker{
+      display:flex;gap:10px;flex-wrap:wrap;margin-left:30px;margin-top:6px;
+      align-items:center;
+    }
+    .set-dot{
+      width:44px;height:44px;border-radius:40px;background:#2a2a35;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      border:1.5px solid #3e3e55;font-weight:600;color:#b0b0c0;
+      cursor:pointer;transition:0.1s;
+    }
+    .set-dot.completed{
+      background:#3a5a7a;border-color:#7aa5d9;color:white;
+    }
+    .set-num{font-size:10px;opacity:0.8}
+    .set-rep{font-size:13px;font-weight:700}
+    .ex-progress{font-size:12px;margin-left:10px;color:#9a9ab0}
+    
+    /* 卡片内计时器 */
+    .card-timer{
+      margin-top:12px;margin-left:30px;background:#252530;
+      border-radius:30px;padding:8px 14px;display:flex;
+      align-items:center;justify-content:space-between;
+      border:0.5px solid #3a3a4e;
+    }
+    .timer-info{
+      display:flex;align-items:center;gap:12px;
+    }
+    .timer-label-small{font-size:12px;color:#9f9fb8}
+    .timer-value{
+      font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;
+      color:#e0e0f0;letter-spacing:2px;
+    }
+    .timer-actions{display:flex;gap:6px}
+    .timer-btn{
+      background:#333345;border:none;color:#cfcfdf;width:40px;height:40px;
+      border-radius:40px;font-size:18px;display:flex;align-items:center;
+      justify-content:center;cursor:pointer;transition:0.1s;
+      border:0.5px solid #4a4a62;
+    }
+    .timer-btn:active{background:#4a4a6a}
+    
+    .warn-box{
+      background:#3d2e1c;border-radius:10px;padding:12px 14px;
+      font-size:13px;color:#e0a56f;margin-bottom:1rem;
+    }
+    .watch-box{
+      background:#1e1e26;border-radius:10px;padding:12px 14px;
+      font-size:13px;color:#b0b0c0;margin-top:1rem;
+    }
+    .footer-actions{display:flex;gap:12px;margin-top:20px}
+    .reset-btn{
+      background:transparent;border:1px solid #4a4a60;padding:12px;
+      border-radius:40px;font-size:14px;color:#b0b0c0;flex:1;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+<h1>Eddie · 3分化 
+  <span class="progress-badge" id="dayProgress">0/0组</span>
+</h1>
+
+<div class="day-nav">
+  <button class="day-btn active" onclick="switchDay(0)">周一 Push</button>
+  <button class="day-btn" onclick="switchDay(1)">周三 Pull</button>
+  <button class="day-btn" onclick="switchDay(2)">周五 Legs</button>
+</div>
+
+<!-- 三个训练日容器 -->
+<div id="day0"></div>
+<div id="day1" style="display:none;"></div>
+<div id="day2" style="display:none;"></div>
+
+<div class="footer-actions">
+  <button class="reset-btn" id="resetDayBtn">↻ 重置今日进度</button>
+</div>
+<div class="watch-box" style="margin-top:16px;font-size:12px; text-align:center;">
+  💡 点击组数圆点标记完成，该动作下方计时器自动开始倒计时。
+</div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+    
+    const DAYS = ['push','pull','legs'];
+    
+    const EXERCISES = {
+      push: {
+        warm: [
+          {name:'手臂绕环', sets:2, reps:'前后10圈', tip:'手臂伸直，幅度越大越好', rest:30, type:'bw'},
+          {name:'猫牛式', sets:2, reps:'10次', tip:'吸气拱背，呼气塌腰', rest:30, type:'bw'},
+          {name:'宽距俯卧撑（轻松版）', sets:2, reps:'10下', tip:'激活胸肌，感受胸部发力', rest:45, type:'bw'},
+          {name:'空手肩推', sets:2, reps:'15下', tip:'模仿肩推，热身肩关节', rest:30, type:'bw'}
+        ],
+        main: [
+          {name:'哑铃卧推（地板）', sets:4, reps:'10下', tip:'下放4秒，推上1秒', rest:75, type:'db'},
+          {name:'标准俯卧撑', sets:4, reps:'最多12+', tip:'身体直线，下放4秒', rest:75, type:'bw'},
+          {name:'哑铃站姿肩推', sets:3, reps:'12下', tip:'核心收紧，直上直下', rest:60, type:'db'},
+          {name:'哑铃侧平举', sets:3, reps:'15下', tip:'手肘带动，不超过肩', rest:45, type:'db'},
+          {name:'窄距俯卧撑', sets:3, reps:'8-10下', tip:'手成三角形，三头发力', rest:60, type:'bw'},
+          {name:'哑铃飞鸟（地板）', sets:3, reps:'12下', tip:'微弯肘，抱树轨迹', rest:60, type:'db'}
+        ],
+        cool: [
+          {name:'胸肌门框拉伸', sets:2, reps:'30秒/边', tip:'身体前倾，拉开胸肌', rest:20, type:'str'},
+          {name:'跨胸肩膀拉伸', sets:2, reps:'30秒/边', tip:'手肘压住拉伸', rest:20, type:'str'},
+          {name:'三头过头拉伸', sets:2, reps:'30秒/边', tip:'轻压手肘', rest:20, type:'str'},
+          {name:'儿童式放松', sets:1, reps:'60秒', tip:'深呼吸放松', rest:0, type:'str'}
+        ]
+      },
+      pull: {
+        warm: [
+          {name:'猫牛式', sets:2, reps:'10次', tip:'热身胸椎', rest:30, type:'bw'},
+          {name:'空手划船模拟', sets:2, reps:'15下', tip:'肩胛骨往中间夹', rest:30, type:'bw'},
+          {name:'手臂绕环', sets:2, reps:'前后各10圈', tip:'热身肩背', rest:30, type:'bw'},
+          {name:'超人式（轻松版）', sets:2, reps:'10下', tip:'同时抬起手脚', rest:30, type:'bw'}
+        ],
+        main: [
+          {name:'哑铃俯身划船', sets:4, reps:'12下/边', tip:'手肘贴身体，拉向腰部', rest:75, type:'db'},
+          {name:'哑铃直立划船', sets:3, reps:'12下', tip:'手肘高过手腕', rest:60, type:'db'},
+          {name:'哑铃弯举', sets:3, reps:'12下', tip:'上臂固定，顶峰收缩', rest:60, type:'db'},
+          {name:'哑铃锤式弯举', sets:3, reps:'10下', tip:'拇指朝上，练肱肌', rest:60, type:'db'},
+          {name:'超人式（正式组）', sets:3, reps:'15下', tip:'顶部停2秒', rest:45, type:'bw'},
+          {name:'哑铃耸肩', sets:3, reps:'15下', tip:'直上直下，不绕圈', rest:45, type:'db'}
+        ],
+        cool: [
+          {name:'跨胸背肌拉伸', sets:2, reps:'30秒/边', tip:'感受背部拉伸', rest:20, type:'str'},
+          {name:'门框背阔肌拉伸', sets:2, reps:'30秒/边', tip:'抓住门框侧倾', rest:20, type:'str'},
+          {name:'二头拉伸', sets:2, reps:'30秒/边', tip:'手背贴墙转身', rest:20, type:'str'},
+          {name:'儿童式', sets:1, reps:'60秒', tip:'深呼吸', rest:0, type:'str'}
+        ]
+      },
+      legs: {
+        warm: [
+          {name:'蚌式开合', sets:2, reps:'15下/边', tip:'激活臀中肌', rest:30, type:'bw'},
+          {name:'臀桥（热身版）', sets:2, reps:'15下', tip:'臀部推上去收紧', rest:30, type:'bw'},
+          {name:'膝盖绕环', sets:2, reps:'顺逆各10圈', tip:'缓慢绕圈', rest:30, type:'bw'},
+          {name:'弓步走热身', sets:2, reps:'10步/边', tip:'感受髋部拉伸', rest:30, type:'bw'}
+        ],
+        main: [
+          {name:'保加利亚分腿蹲', sets:4, reps:'10下/边', tip:'后脚放椅子，前膝稳定', rest:90, type:'bw'},
+          {name:'哑铃罗马尼亚硬拉', sets:4, reps:'12下', tip:'背平直，髋部后推', rest:75, type:'db'},
+          {name:'单腿臀桥', sets:3, reps:'12下/边', tip:'单腿推臀，顶部停2秒', rest:60, type:'bw'},
+          {name:'蚌式开合（正式）', sets:3, reps:'20下/边', tip:'更慢更专注', rest:45, type:'bw'},
+          {name:'平板支撑', sets:3, reps:'45秒', tip:'身体直线，核心收紧', rest:45, type:'bw'},
+          {name:'登山者式', sets:3, reps:'30秒', tip:'核心收紧，交替收腿', rest:30, type:'bw'}
+        ],
+        cool: [
+          {name:'股四头肌拉伸', sets:2, reps:'45秒/边', tip:'手拉脚踝', rest:20, type:'str'},
+          {name:'腿后腱拉伸', sets:2, reps:'45秒/边', tip:'从髋部折叠', rest:20, type:'str'},
+          {name:'鸽子式臀部拉伸', sets:2, reps:'45秒/边', tip:'深度拉伸臀肌', rest:20, type:'str'},
+          {name:'弓步髋屈肌拉伸', sets:2, reps:'30秒/边', tip:'身体直立', rest:20, type:'str'}
+        ]
+      }
+    };
+
+    let currentDay = 0;
+    let dayStates = [[], [], []];
+    
+    // 计时器管理: 记录当前活动的计时器 { day, phase, exIdx, interval, seconds, restSec }
+    let activeTimer = null;
+    
+    const dayContainers = [document.getElementById('day0'), document.getElementById('day1'), document.getElementById('day2')];
+    const dayProgressSpan = document.getElementById('dayProgress');
+
+    function formatTime(sec){
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function stopActiveTimer(){
+      if(activeTimer && activeTimer.interval){
+        clearInterval(activeTimer.interval);
+        activeTimer.interval = null;
+      }
+      activeTimer = null;
+    }
+
+    // 启动指定动作的计时器
+    function startTimerForExercise(dayIdx, phase, exIdx, restSec, actionName){
+      stopActiveTimer(); // 停止之前的计时器
+      
+      let seconds = restSec;
+      const updateTimerDisplay = () => {
+        // 更新对应卡片内的显示
+        const card = document.querySelector(`.ex-card[data-day="${dayIdx}"][data-phase="${phase}"][data-ex="${exIdx}"]`);
+        if(card){
+          const timerValue = card.querySelector('.timer-value');
+          if(timerValue) timerValue.textContent = formatTime(seconds);
+        }
+      };
+      
+      updateTimerDisplay();
+      
+      const interval = setInterval(() => {
+        if(seconds > 0){
+          seconds--;
+          updateTimerDisplay();
+          if(seconds === 0){
+            // 播放提示
+            try{
+              const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+              osc.connect(gain); gain.connect(audioCtx.destination);
+              osc.frequency.value = 1046; gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+              osc.start(); osc.stop(audioCtx.currentTime+0.15);
+            }catch(e){}
+            alert(`⏰ ${actionName} 休息结束！`);
+            stopActiveTimer();
+            // 刷新卡片按钮状态 (变为暂停图标)
+            renderDay(currentDay); // 重绘刷新UI
+          }
+        } else {
+          stopActiveTimer();
+          renderDay(currentDay);
+        }
+      }, 1000);
+      
+      activeTimer = { dayIdx, phase, exIdx, interval, seconds, restSec };
+    }
+
+    function pauseActiveTimer(){
+      if(activeTimer && activeTimer.interval){
+        clearInterval(activeTimer.interval);
+        activeTimer.interval = null;
+      }
+    }
+
+    function resumeActiveTimer(){
+      if(activeTimer && !activeTimer.interval){
+        const { dayIdx, phase, exIdx, restSec } = activeTimer;
+        // 获取当前显示的秒数
+        const card = document.querySelector(`.ex-card[data-day="${dayIdx}"][data-phase="${phase}"][data-ex="${exIdx}"]`);
+        let currentSec = restSec;
+        if(card){
+          const val = card.querySelector('.timer-value')?.textContent;
+          if(val){
+            const parts = val.split(':');
+            currentSec = parseInt(parts[0])*60 + parseInt(parts[1]);
+          }
+        }
+        activeTimer.seconds = currentSec;
+        startTimerForExercise(dayIdx, phase, exIdx, currentSec, '');
+      }
+    }
+
+    function resetTimerForExercise(dayIdx, phase, exIdx, restSec){
+      stopActiveTimer();
+      const card = document.querySelector(`.ex-card[data-day="${dayIdx}"][data-phase="${phase}"][data-ex="${exIdx}"]`);
+      if(card){
+        card.querySelector('.timer-value').textContent = formatTime(restSec);
+      }
+      activeTimer = null;
+    }
+
+    function calcDayProgress(dayIdx){
+      let total = 0, completed = 0;
+      const state = dayStates[dayIdx];
+      if(!state) return {total:0, completed:0};
+      for(let phase of ['warm','main','cool']){
+        const phaseEx = EXERCISES[DAYS[dayIdx]][phase];
+        const phaseState = state[phase] || [];
+        phaseEx.forEach((ex,exIdx) => {
+          total += ex.sets;
+          if(phaseState[exIdx]) completed += phaseState[exIdx].filter(v=>v).length;
+        });
+      }
+      return {total, completed};
+    }
+
+    function updateProgressLabel(){
+      const {total, completed} = calcDayProgress(currentDay);
+      dayProgressSpan.textContent = `${completed}/${total}组`;
+    }
+
+    function renderDay(dayIdx){
+      const dayKey = DAYS[dayIdx];
+      const exData = EXERCISES[dayKey];
+      const state = dayStates[dayIdx];
+      
+      let html = '';
+      if(dayIdx===0){
+        html += `<div class="heart-bar"><span class="hz hz-warm">热身 100–120</span><span class="hz hz-work">主训练 130–155</span><span class="hz hz-cool">拉伸 &lt;100</span></div>`;
+      } else if(dayIdx===1){
+        html += `<div class="heart-bar"><span class="hz hz-warm">热身 100–120</span><span class="hz hz-work">主训练 130–155</span><span class="hz hz-cool">拉伸 &lt;100</span></div>`;
+      } else {
+        html += `<div class="warn-box">膝盖注意：所有动作膝盖朝脚尖，内扣立刻停止。</div>`;
+        html += `<div class="heart-bar"><span class="hz hz-warm">热身 100–120</span><span class="hz hz-work">主训练 130–160</span><span class="hz hz-cool">拉伸 &lt;100</span></div>`;
+      }
+
+      ['warm','main','cool'].forEach(phase => {
+        const phaseName = phase==='warm'?'热身':(phase==='main'?'主训练':'拉伸');
+        const phaseTime = phase==='warm'?'10分钟':(phase==='main'?'40分钟':'10分钟');
+        const dotClass = phase==='warm'?'dot-warm':(phase==='main'?'dot-main':'dot-cool');
+        html += `<div class="phase">`;
+        html += `<div class="phase-header"><div class="phase-dot ${dotClass}"></div><span class="phase-title">${phaseName}</span><span class="phase-time">${phaseTime}</span></div>`;
+        
+        const exercises = exData[phase];
+        const phaseState = state[phase] || [];
+        
+        exercises.forEach((ex, exIdx) => {
+          const badgeClass = ex.type==='db'?'b-db':(ex.type==='bw'?'b-bw':'b-str');
+          const badgeText = ex.type==='db'?'哑铃':(ex.type==='bw'?'徒手':'拉伸');
+          const setsCompleted = phaseState[exIdx] ? phaseState[exIdx].filter(v=>v).length : 0;
+          
+          // 判断此动作的计时器是否活跃
+          const isTimerActive = activeTimer && activeTimer.dayIdx === dayIdx && activeTimer.phase === phase && activeTimer.exIdx === exIdx;
+          const timerValue = isTimerActive ? formatTime(activeTimer.seconds) : formatTime(ex.rest);
+          
+          html += `<div class="ex-card" data-day="${dayIdx}" data-phase="${phase}" data-ex="${exIdx}">`;
+          html += `<div class="ex-top"><span class="ex-num">${String(exIdx+1).padStart(2,'0')}</span><span class="ex-name">${ex.name}</span><span class="ex-badge ${badgeClass}">${badgeText}</span></div>`;
+          html += `<div class="ex-sets">${ex.sets}组 × ${ex.reps}</div>`;
+          html += `<div class="ex-tip">${ex.tip}</div>`;
+          if(ex.rest) html += `<div class="ex-rest">组间休息 ${ex.rest}秒</div>`;
+          
+          // 组追踪
+          html += `<div class="set-tracker">`;
+          for(let s=0; s<ex.sets; s++){
+            const completed = phaseState[exIdx] ? phaseState[exIdx][s] : false;
+            html += `<div class="set-dot ${completed?'completed':''}" data-day="${dayIdx}" data-phase="${phase}" data-ex="${exIdx}" data-set="${s}">`;
+            html += `<span class="set-num">${s+1}</span>`;
+            html += `<span class="set-rep">${ex.reps.includes('/')?ex.reps.split('/')[0]:ex.reps}</span>`;
+            html += `</div>`;
+          }
+          html += `<span class="ex-progress">${setsCompleted}/${ex.sets}</span>`;
+          html += `</div>`;
+          
+          // 卡片内计时器 (只要休息>0就显示)
+          if(ex.rest > 0){
+            html += `<div class="card-timer">`;
+            html += `<div class="timer-info">`;
+            html += `<span class="timer-label-small">⏱️ 休息</span>`;
+            html += `<span class="timer-value">${timerValue}</span>`;
+            html += `</div>`;
+            html += `<div class="timer-actions">`;
+            html += `<button class="timer-btn timer-playpause" data-day="${dayIdx}" data-phase="${phase}" data-ex="${exIdx}">${isTimerActive && activeTimer.interval?'⏸':'▶'}</button>`;
+            html += `<button class="timer-btn timer-reset" data-day="${dayIdx}" data-phase="${phase}" data-ex="${exIdx}" data-rest="${ex.rest}">↺</button>`;
+            html += `</div></div>`;
+          }
+          html += `</div>`;
+        });
+        html += `</div>`;
+      });
+      
+      if(dayIdx===0) html += `<div class="watch-box"><strong>Apple Watch：</strong> 力量训练，热身心率100–120，主训练130–155。</div>`;
+      else if(dayIdx===1) html += `<div class="watch-box"><strong>Apple Watch：</strong> Pull日心率稍低，主训练130–150。</div>`;
+      else html += `<div class="watch-box"><strong>Apple Watch：</strong> Legs日心率最高，登山者可能160+。</div>`;
+      
+      dayContainers[dayIdx].innerHTML = html;
+      updateProgressLabel();
+    }
+
+    function loadStates(){
+      try{
+        const saved = localStorage.getItem('eddie_3day_state_v2');
+        if(saved){
+          const parsed = JSON.parse(saved);
+          if(Array.isArray(parsed) && parsed.length===3) dayStates = parsed;
+          else initEmptyStates();
+        } else initEmptyStates();
+      }catch(e){ initEmptyStates(); }
+    }
+
+    function initEmptyStates(){
+      dayStates = DAYS.map(dayKey => {
+        const exData = EXERCISES[dayKey];
+        const dayState = { warm:[], main:[], cool:[] };
+        ['warm','main','cool'].forEach(phase => {
+          exData[phase].forEach(ex => { dayState[phase].push(new Array(ex.sets).fill(false)); });
+        });
+        return dayState;
+      });
+    }
+
+    function saveStates(){
+      localStorage.setItem('eddie_3day_state_v2', JSON.stringify(dayStates));
+    }
+
+    function handleCardClick(e){
+      const dot = e.target.closest('.set-dot');
+      if(dot){
+        const day = dot.dataset.day; const phase = dot.dataset.phase;
+        const exIdx = dot.dataset.ex; const setIdx = dot.dataset.set;
+        if(day===undefined) return;
+        const dayIdx = parseInt(day);
+        const exercise = EXERCISES[DAYS[dayIdx]][phase][exIdx];
+        const currentState = dayStates[dayIdx][phase][exIdx];
+        const wasCompleted = currentState[setIdx];
+        currentState[setIdx] = !wasCompleted;
+        
+        // 如果标记为完成且休息>0，启动计时器
+        if(!wasCompleted && exercise.rest > 0){
+          startTimerForExercise(dayIdx, phase, exIdx, exercise.rest, exercise.name);
+        } else if(wasCompleted){
+          // 取消完成，如果当前就是这个动作的计时器在跑，可以选择不停，或者停止？我们保持不干扰
+        }
+        saveStates();
+        renderDay(dayIdx);
+        return;
+      }
+      
+      // 计时器按钮
+      const playBtn = e.target.closest('.timer-playpause');
+      if(playBtn){
+        const day = playBtn.dataset.day; const phase = playBtn.dataset.phase; const exIdx = playBtn.dataset.ex;
+        const dayIdx = parseInt(day);
+        const exercise = EXERCISES[DAYS[dayIdx]][phase][exIdx];
+        if(activeTimer && activeTimer.dayIdx===dayIdx && activeTimer.phase===phase && activeTimer.exIdx===exIdx){
+          if(activeTimer.interval) pauseActiveTimer();
+          else resumeActiveTimer();
+        } else {
+          // 新启动
+          startTimerForExercise(dayIdx, phase, exIdx, exercise.rest, exercise.name);
+        }
+        renderDay(dayIdx);
+        return;
+      }
+      
+      const resetBtn = e.target.closest('.timer-reset');
+      if(resetBtn){
+        const day = resetBtn.dataset.day; const phase = resetBtn.dataset.phase; 
+        const exIdx = resetBtn.dataset.ex; const restSec = parseInt(resetBtn.dataset.rest);
+        const dayIdx = parseInt(day);
+        resetTimerForExercise(dayIdx, phase, exIdx, restSec);
+        renderDay(dayIdx);
+        return;
+      }
+    }
+
+    function resetCurrentDay(){
+      if(confirm('确定重置今日所有组进度吗？')){
+        stopActiveTimer();
+        const dayKey = DAYS[currentDay];
+        const exData = EXERCISES[dayKey];
+        const newState = { warm:[], main:[], cool:[] };
+        ['warm','main','cool'].forEach(phase => {
+          exData[phase].forEach(ex => { newState[phase].push(new Array(ex.sets).fill(false)); });
+        });
+        dayStates[currentDay] = newState;
+        saveStates();
+        renderDay(currentDay);
+      }
+    }
+
+    function switchDay(n){
+      currentDay = n;
+      stopActiveTimer();
+      document.querySelectorAll('.day-btn').forEach((btn,i)=> btn.classList.toggle('active', i===n));
+      dayContainers.forEach((cont,i)=> cont.style.display = i===n?'block':'none');
+      renderDay(n);
+    }
+
+    function bindEvents(){
+      dayContainers.forEach(cont => cont.addEventListener('click', handleCardClick));
+      document.getElementById('resetDayBtn').addEventListener('click', resetCurrentDay);
+      window.switchDay = switchDay;
+    }
+
+    function init(){
+      loadStates();
+      renderDay(0);
+      bindEvents();
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>
