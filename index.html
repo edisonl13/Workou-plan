@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Eddie · 定制三分化 · 大字体</title>
+  <title>Eddie · 增肌减脂 · 心率定制版</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{
@@ -18,9 +18,19 @@
       display:flex;align-items:center;gap:10px;
     }
     .subhead{
-      font-size:15px;color:#a0a0c0;margin-bottom:18px;
+      font-size:15px;color:#a0a0c0;margin-bottom:10px;
       border-left:3px solid #6a8fc0;padding-left:12px;
     }
+    .hr-card{
+      background:#1a1a2a;border-radius:18px;padding:12px 16px;
+      margin-bottom:18px;border:0.5px solid #3a4a6a;
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    }
+    .hr-badge{
+      background:#3a2a4a;padding:6px 14px;border-radius:30px;
+      color:#e0b0ff;font-weight:600;font-size:15px;
+    }
+    .hr-detail{font-size:14px;color:#c0c0e0}
     .day-nav{display:flex;gap:8px;margin-bottom:20px}
     .day-btn{
       flex:1;padding:14px 6px;border-radius:36px;
@@ -63,11 +73,16 @@
       border-radius:30px;color:#e0e0ff;margin-left:8px;font-weight:500;
     }
     .ex-detail{
-      margin-left:38px;font-size:16px;color:#c0c0e0;margin-bottom:8px;
+      margin-left:38px;font-size:16px;color:#c0c0e0;margin-bottom:6px;
     }
     .ex-tip{
       margin-left:38px;font-size:14.5px;color:#a0a0c8;font-style:italic;
-      margin-bottom:12px;line-height:1.4;
+      margin-bottom:8px;line-height:1.4;
+    }
+    .ex-hr{
+      margin-left:38px;font-size:13.5px;color:#b8a0d0;
+      background:#202035;padding:5px 12px;border-radius:20px;
+      display:inline-block;margin-bottom:10px;
     }
     
     .set-tracker{
@@ -86,7 +101,6 @@
     .set-rep{font-size:15px;font-weight:700}
     .ex-progress{margin-left:14px;font-size:15px;color:#b0b0e0;font-weight:500}
     
-    /* 卡片内计时器 */
     .card-timer{
       margin-top:16px;margin-left:38px;background:#1e1e32;
       border-radius:40px;padding:10px 18px;display:flex;
@@ -121,10 +135,16 @@
 </head>
 <body>
 <div class="wrap">
-<h1>🏋️ Eddie·定制三分化
+<h1>🏋️ Eddie·增肌减脂
   <span class="progress-badge" id="dayProgress">0/0组</span>
 </h1>
 <div class="subhead">👤 男 · 36岁 · 170cm · 63kg · 膝盖敏感 · 上胸强化</div>
+
+<!-- 心率参考卡 -->
+<div class="hr-card">
+  <span class="hr-badge">❤️ 最大心率 184</span>
+  <span class="hr-detail">增肌有效区间 110–147 · 组间若＞150需延长休息</span>
+</div>
 
 <div class="day-nav">
   <button class="day-btn active" onclick="switchDay(0)">周一 Push</button>
@@ -141,7 +161,8 @@
 </div>
 <div class="note-box">
   ⏱️ 点击组圆点标记完成，自动倒计时。拉伸结束有长提示音。<br>
-  🧠 重量基于你的器械校准：锤式弯举用小哑铃，卧推/划船用10kg。
+  🧠 重量基于你的器械校准，若无法完成次数请降重。<br>
+  📅 计划周期 8-12 周，若连续2周无法完成目标次数或膝盖不适加重，需重新评估。
 </div>
 </div>
 
@@ -149,73 +170,73 @@
   (function(){
     "use strict";
     
-    // ----- Eddie 专属数据 (已根据反馈调整重量) -----
+    // ----- Eddie 专属数据 (包含心率区间) -----
     const DAYS = ['push','pull','legs'];
     
     const EXERCISES = {
       push: {
         warm: [
-          {name:'手臂绕环', sets:2, reps:'前后各10圈', tip:'手臂伸直画大圈', rest:30, type:'bw', weight:''},
-          {name:'猫牛式', sets:2, reps:'10次', tip:'吸气拱背，呼气塌腰', rest:30, type:'bw', weight:''},
-          {name:'上斜俯卧撑(热身)', sets:2, reps:'10下', tip:'手撑沙发，激活上胸', rest:45, type:'bw', weight:''},
-          {name:'空手肩推', sets:2, reps:'15下', tip:'模拟肩推轨迹', rest:30, type:'bw', weight:''}
+          {name:'手臂绕环', sets:2, reps:'前后各10圈', tip:'手臂伸直画大圈', rest:30, type:'bw', weight:'', hr:'💓 100-120 热身区'},
+          {name:'猫牛式', sets:2, reps:'10次', tip:'吸气拱背，呼气塌腰', rest:30, type:'bw', weight:'', hr:'💓 90-110 活动胸椎'},
+          {name:'上斜俯卧撑(热身)', sets:2, reps:'10下', tip:'手撑沙发，激活上胸', rest:45, type:'bw', weight:'', hr:'💓 110-130 预热'},
+          {name:'空手肩推', sets:2, reps:'15下', tip:'模拟肩推轨迹', rest:30, type:'bw', weight:'', hr:'💓 100-120 润滑关节'}
         ],
         main: [
-          {name:'地板卧推(垫高背)', sets:4, reps:'10-12', tip:'下放4秒，推起1秒，针对上胸', rest:75, type:'db', weight:'10kg/边'},
-          {name:'上斜俯卧撑', sets:3, reps:'力竭', tip:'手撑沙发，身体直线', rest:60, type:'bw', weight:'自重'},
-          {name:'哑铃站姿肩推', sets:3, reps:'12', tip:'核心收紧，直上直下', rest:60, type:'db', weight:'7.5-10kg/边'},
-          {name:'侧平举(小哑铃)', sets:3, reps:'20', tip:'1.5kg，手肘微弯，不过肩', rest:45, type:'db', weight:'1.5kg/边'},
-          {name:'窄距俯卧撑', sets:3, reps:'8-10', tip:'手成钻石形，练三头', rest:60, type:'bw', weight:'自重'},
-          {name:'哑铃飞鸟(地板)', sets:3, reps:'15', tip:'微弯肘，轻重量感受拉伸', rest:60, type:'db', weight:'5-7.5kg/边'}
+          {name:'地板卧推(垫高背)', sets:4, reps:'10-12', tip:'下放4秒，推起1秒', rest:75, type:'db', weight:'10kg/边', hr:'💓 130-150 主项·复合动作心率偏高正常'},
+          {name:'上斜俯卧撑', sets:3, reps:'力竭', tip:'手撑沙发，身体直线', rest:60, type:'bw', weight:'自重', hr:'💓 125-145 针对上胸'},
+          {name:'哑铃站姿肩推', sets:3, reps:'12', tip:'核心收紧，直上直下', rest:60, type:'db', weight:'7.5-10kg/边', hr:'💓 120-140 稳定核心'},
+          {name:'侧平举(小哑铃)', sets:3, reps:'20', tip:'1.5kg，手肘微弯', rest:45, type:'db', weight:'1.5kg/边', hr:'💓 110-130 孤立动作心率略低正常'},
+          {name:'窄距俯卧撑', sets:3, reps:'8-10', tip:'手成钻石形', rest:60, type:'bw', weight:'自重', hr:'💓 120-140 三头'},
+          {name:'哑铃飞鸟(地板)', sets:3, reps:'15', tip:'微弯肘，轻重量感受拉伸', rest:60, type:'db', weight:'5kg/边', hr:'💓 110-130 控制离心'}
         ],
         cool: [
-          {name:'胸肌门框拉伸', sets:2, reps:'30秒/边', tip:'身体前倾，拉开胸肌', rest:30, type:'str', weight:''},
-          {name:'跨胸肩膀拉伸', sets:2, reps:'30秒/边', tip:'手肘压住拉伸', rest:30, type:'str', weight:''},
-          {name:'三头过头拉伸', sets:2, reps:'30秒/边', tip:'轻压手肘', rest:30, type:'str', weight:''},
-          {name:'儿童式放松', sets:1, reps:'60秒', tip:'深呼吸放松', rest:60, type:'str', weight:''}
+          {name:'胸肌门框拉伸', sets:2, reps:'30秒/边', tip:'身体前倾', rest:30, type:'str', weight:'', hr:'💓 回落至100以下'},
+          {name:'跨胸肩膀拉伸', sets:2, reps:'30秒/边', tip:'手肘压住', rest:30, type:'str', weight:'', hr:'💓 <100 放松'},
+          {name:'三头过头拉伸', sets:2, reps:'30秒/边', tip:'轻压手肘', rest:30, type:'str', weight:'', hr:'💓 <100'},
+          {name:'儿童式放松', sets:1, reps:'60秒', tip:'深呼吸', rest:60, type:'str', weight:'', hr:'💓 回落'}
         ]
       },
       pull: {
         warm: [
-          {name:'猫牛式', sets:2, reps:'10次', tip:'活动胸椎', rest:30, type:'bw', weight:''},
-          {name:'空手划船模拟', sets:2, reps:'15下', tip:'肩胛后收', rest:30, type:'bw', weight:''},
-          {name:'手臂绕环', sets:2, reps:'前后10圈', tip:'润滑肩关节', rest:30, type:'bw', weight:''},
-          {name:'超人式(轻)', sets:2, reps:'10下', tip:'同时抬起手脚', rest:30, type:'bw', weight:''}
+          {name:'猫牛式', sets:2, reps:'10次', tip:'活动胸椎', rest:30, type:'bw', weight:'', hr:'💓 90-110'},
+          {name:'空手划船模拟', sets:2, reps:'15下', tip:'肩胛后收', rest:30, type:'bw', weight:'', hr:'💓 100-120'},
+          {name:'手臂绕环', sets:2, reps:'前后10圈', tip:'润滑肩关节', rest:30, type:'bw', weight:'', hr:'💓 100-120'},
+          {name:'超人式(轻)', sets:2, reps:'10下', tip:'同时抬起手脚', rest:30, type:'bw', weight:'', hr:'💓 105-125'}
         ],
         main: [
-          {name:'单臂哑铃划船', sets:4, reps:'12-15/边', tip:'顶峰收缩1秒', rest:75, type:'db', weight:'10kg/边'},
-          {name:'宽距哑铃划船', sets:3, reps:'12', tip:'俯身，手肘朝外', rest:60, type:'db', weight:'7.5-10kg/边'},
-          {name:'哑铃弯举', sets:3, reps:'10', tip:'大臂固定，控制离心', rest:60, type:'db', weight:'10kg/边'},
-          {name:'锤式弯举', sets:3, reps:'20', tip:'1.5kg小哑铃，针对肱肌', rest:45, type:'db', weight:'1.5kg/边'},
-          {name:'负重超人式', sets:3, reps:'15', tip:'手持1.5kg，下背强化', rest:45, type:'db', weight:'1.5kg手持'},
-          {name:'哑铃耸肩', sets:3, reps:'15', tip:'直上直下，不绕圈', rest:45, type:'db', weight:'10kg/边'}
+          {name:'单臂哑铃划船', sets:4, reps:'12-15/边', tip:'顶峰收缩1秒', rest:75, type:'db', weight:'10kg/边', hr:'💓 125-145 背阔肌'},
+          {name:'宽距哑铃划船', sets:3, reps:'12', tip:'俯身，手肘朝外', rest:60, type:'db', weight:'7.5-10kg/边', hr:'💓 120-140'},
+          {name:'哑铃弯举', sets:3, reps:'10', tip:'大臂固定', rest:60, type:'db', weight:'7.5-10kg/边', hr:'💓 115-135 若10kg吃力降重'},
+          {name:'锤式弯举', sets:3, reps:'20', tip:'1.5kg小哑铃', rest:45, type:'db', weight:'1.5kg/边', hr:'💓 110-125 小重量高次数'},
+          {name:'负重超人式', sets:3, reps:'15', tip:'手持1.5kg', rest:45, type:'db', weight:'1.5kg手持', hr:'💓 115-130 下背'},
+          {name:'哑铃耸肩', sets:3, reps:'15', tip:'直上直下', rest:45, type:'db', weight:'10kg/边', hr:'💓 110-125'}
         ],
         cool: [
-          {name:'跨胸背肌拉伸', sets:2, reps:'30秒/边', tip:'感受背部拉伸', rest:30, type:'str', weight:''},
-          {name:'门框背阔肌拉伸', sets:2, reps:'30秒/边', tip:'抓住门框侧倾', rest:30, type:'str', weight:''},
-          {name:'二头拉伸', sets:2, reps:'30秒/边', tip:'手背贴墙转身', rest:30, type:'str', weight:''},
-          {name:'儿童式', sets:1, reps:'60秒', tip:'深呼吸', rest:60, type:'str', weight:''}
+          {name:'跨胸背肌拉伸', sets:2, reps:'30秒/边', tip:'感受背部', rest:30, type:'str', weight:'', hr:'💓 <100'},
+          {name:'门框背阔肌拉伸', sets:2, reps:'30秒/边', tip:'抓住门框', rest:30, type:'str', weight:'', hr:'💓 <100'},
+          {name:'二头拉伸', sets:2, reps:'30秒/边', tip:'手背贴墙', rest:30, type:'str', weight:'', hr:'💓 <100'},
+          {name:'儿童式', sets:1, reps:'60秒', tip:'深呼吸', rest:60, type:'str', weight:'', hr:'💓 回落'}
         ]
       },
       legs: {
         warm: [
-          {name:'蚌式开合', sets:2, reps:'15/边', tip:'激活臀中肌', rest:30, type:'bw', weight:''},
-          {name:'臀桥(热身)', sets:2, reps:'15', tip:'臀部推起收紧', rest:30, type:'bw', weight:''},
-          {name:'膝盖绕环', sets:2, reps:'顺逆各10圈', tip:'缓慢绕圈', rest:30, type:'bw', weight:''},
-          {name:'弓步走热身', sets:2, reps:'10步/边', tip:'感受髋部拉伸', rest:30, type:'bw', weight:''}
+          {name:'蚌式开合', sets:2, reps:'15/边', tip:'激活臀中肌', rest:30, type:'bw', weight:'', hr:'💓 100-120'},
+          {name:'臀桥(热身)', sets:2, reps:'15', tip:'臀部推起', rest:30, type:'bw', weight:'', hr:'💓 105-120'},
+          {name:'膝盖绕环', sets:2, reps:'顺逆各10圈', tip:'缓慢绕圈', rest:30, type:'bw', weight:'', hr:'💓 95-110'},
+          {name:'弓步走热身', sets:2, reps:'10步/边', tip:'感受髋部', rest:30, type:'bw', weight:'', hr:'💓 110-125'}
         ],
         main: [
-          {name:'保加利亚分腿蹲', sets:4, reps:'15/边', tip:'自重，只蹲到不痛角度', rest:90, type:'bw', weight:'自重'},
-          {name:'罗马尼亚硬拉', sets:4, reps:'15', tip:'哑铃贴腿，背平直', rest:75, type:'db', weight:'10kg/边'},
-          {name:'单腿臀桥(负重)', sets:3, reps:'12/边', tip:'1.5kg放髋部', rest:60, type:'db', weight:'1.5kg'},
-          {name:'蚌式开合(正式)', sets:3, reps:'20/边', tip:'慢速，顶部停2秒', rest:45, type:'bw', weight:''},
-          {name:'平板支撑交替抬手', sets:3, reps:'30秒', tip:'核心绷紧，不塌腰', rest:45, type:'bw', weight:''}
+          {name:'保加利亚分腿蹲', sets:4, reps:'15/边', tip:'自重，只蹲到不痛角度', rest:90, type:'bw', weight:'自重', hr:'💓 130-150 心率易高，注意膝盖'},
+          {name:'罗马尼亚硬拉', sets:4, reps:'15', tip:'哑铃贴腿，背平直', rest:75, type:'db', weight:'10kg/边', hr:'💓 125-145 后链王牌'},
+          {name:'单腿臀桥(负重)', sets:3, reps:'12/边', tip:'1.5kg放髋部', rest:60, type:'db', weight:'1.5kg', hr:'💓 115-130 臀肌'},
+          {name:'蚌式开合(正式)', sets:3, reps:'20/边', tip:'慢速，顶部停2秒', rest:45, type:'bw', weight:'', hr:'💓 110-125'},
+          {name:'平板支撑交替抬手', sets:3, reps:'30秒', tip:'核心绷紧', rest:45, type:'bw', weight:'', hr:'💓 115-135 核心'}
         ],
         cool: [
-          {name:'股四头肌拉伸', sets:2, reps:'45秒/边', tip:'手拉脚踝，扶墙', rest:45, type:'str', weight:''},
-          {name:'腿后腱拉伸', sets:2, reps:'45秒/边', tip:'从髋部折叠', rest:45, type:'str', weight:''},
-          {name:'鸽子式臀部拉伸', sets:2, reps:'45秒/边', tip:'深度拉伸臀肌', rest:45, type:'str', weight:''},
-          {name:'弓步髋屈肌拉伸', sets:2, reps:'30秒/边', tip:'身体直立', rest:30, type:'str', weight:''}
+          {name:'股四头肌拉伸', sets:2, reps:'45秒/边', tip:'手拉脚踝', rest:45, type:'str', weight:'', hr:'💓 <100'},
+          {name:'腿后腱拉伸', sets:2, reps:'45秒/边', tip:'从髋部折叠', rest:45, type:'str', weight:'', hr:'💓 <100'},
+          {name:'鸽子式臀部拉伸', sets:2, reps:'45秒/边', tip:'深度拉伸', rest:45, type:'str', weight:'', hr:'💓 <100'},
+          {name:'弓步髋屈肌拉伸', sets:2, reps:'30秒/边', tip:'身体直立', rest:30, type:'str', weight:'', hr:'💓 <100'}
         ]
       }
     };
@@ -363,6 +384,7 @@
           html += `</div>`;
           html += `<div class="ex-detail">${ex.sets}组 × ${ex.reps}</div>`;
           html += `<div class="ex-tip">💡 ${ex.tip}</div>`;
+          if(ex.hr) html += `<div class="ex-hr">${ex.hr}</div>`;
           
           html += `<div class="set-tracker">`;
           for(let s=0; s<ex.sets; s++){
@@ -382,16 +404,16 @@
         });
         html += `</div>`;
       });
-      if(dayIdx===0) html += `<div class="note-box">📊 上胸强化日 · 注意下放4秒</div>`;
-      else if(dayIdx===1) html += `<div class="note-box">📊 背部厚度日 · 顶峰收缩</div>`;
-      else html += `<div class="note-box">🦵 膝盖友好下肢 · 硬拉/臀桥为主</div>`;
+      if(dayIdx===0) html += `<div class="note-box">📊 上胸强化日 · 注意下放4秒 · 心率＞155延长休息</div>`;
+      else if(dayIdx===1) html += `<div class="note-box">📊 背部厚度日 · 顶峰收缩 · 弯举若吃力降重</div>`;
+      else html += `<div class="note-box">🦵 膝盖友好下肢 · 硬拉/臀桥为主 · 分腿蹲只到不痛角度</div>`;
       dayContainers[dayIdx].innerHTML = html;
       updateProgressLabel();
     }
 
     function loadStates(){
       try{
-        const saved = localStorage.getItem('eddie_custom_v2');
+        const saved = localStorage.getItem('eddie_hr_v1');
         if(saved) dayStates = JSON.parse(saved);
         else initEmpty();
       }catch(e){ initEmpty(); }
@@ -405,7 +427,7 @@
         return st;
       });
     }
-    function saveStates(){ localStorage.setItem('eddie_custom_v2', JSON.stringify(dayStates)); }
+    function saveStates(){ localStorage.setItem('eddie_hr_v1', JSON.stringify(dayStates)); }
 
     function handleClick(e){
       const dot = e.target.closest('.set-dot');
